@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "panorama",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jonaszell97/Panorama.git",
+      "state" : {
+        "revision" : "3bde5e74d716d5453a1f481b03b0bba0156b98e1",
+        "version" : "0.2.1"
+      }
+    },
+    {
+      "identity" : "toolbox",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jonaszell97/Toolbox.git",
+      "state" : {
+        "revision" : "1a111bbb2700a03b6581b7e85959bfba1051cccd",
+        "version" : "0.2.0"
+      }
+    }
+  ],
+  "version" : 2
+}
