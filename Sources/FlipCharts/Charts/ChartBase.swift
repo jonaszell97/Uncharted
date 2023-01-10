@@ -124,6 +124,7 @@ public struct ChartBase<Content: View>: View {
             ChartYAxisLabel(label: $0.element, labelIndex: $0.offset)
         }
         
+        let minLabelLength = fullData.computedParameters.yAxisParams.longestLabelLength
         return ZStack {
             Text(verbatim: self.state.longestYLabel)
                 .font(axisConfig.labelFont.monospacedDigit())
@@ -136,13 +137,21 @@ public struct ChartBase<Content: View>: View {
                         Spacer()
                     }
                     
-                    Text(verbatim: label.label)
-                        .foregroundColor(axisConfig.labelFontColor)
-                        .font(axisConfig.labelFont.monospacedDigit())
-                        .padding(.leading, 2)
-                        .relativeOffset(y: -0.5)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
+                    HStack(spacing: 0) {
+                        Text(verbatim: label.label)
+                            .foregroundColor(axisConfig.labelFontColor)
+                        
+                        let missing = minLabelLength - label.label.count
+                        if missing > 0, missing < 4 {
+                            Text(verbatim: .init(repeating: "0", count: missing))
+                                .opacity(0)
+                        }
+                    }
+                    .font(axisConfig.labelFont.monospacedDigit())
+                    .padding(.leading, 2)
+                    .relativeOffset(y: -0.5)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 }
             }
             .padding(EdgeInsets(top: data.config.padding.top, leading: 0,
@@ -254,7 +263,7 @@ public struct ChartBase<Content: View>: View {
                 return
             }
             
-            withAnimation(.linear(duration: 0.05)) {
+            withAnimation(.linear(duration: 0.15)) {
                 state.currentChartOffset = .init(width: action.translation.width, height: 0)
             }
         }
@@ -296,6 +305,7 @@ public struct ChartBase<Content: View>: View {
                         self.xAxisAndContent(data: state.nextDataSubset, yAxisParams: yAxisParams)
                     }
                     .frame(width: 3 * state.chartAreaSize.width)
+                    .offset(x: state.currentChartOffset.width)
                 }
                 .frame(width: size.width, height: size.height)
                 .onAppear {
@@ -439,7 +449,6 @@ public struct ChartBase<Content: View>: View {
                 }
             }
             .compositingGroup()
-            .offset(x: state.currentChartOffset.width)
             .clipShape(Rectangle())
             .contentShape(Rectangle())
             
