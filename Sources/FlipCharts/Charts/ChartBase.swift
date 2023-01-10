@@ -4,27 +4,15 @@ import Toolbox
 import Panorama
 
 fileprivate struct ChartYAxisLabel: Identifiable {
-    let chartId: Int
     let label: String
     let labelIndex: Int
-    
-    var id: String { "\(chartId)_yaxislabel_\(label)" }
-}
-
-fileprivate struct ChartXAxisLabel: Identifiable {
-    let chartId: Int
-    let label: String
-    let labelIndex: Int
-    
-    var id: String { "\(chartId)_xaxislabel_\(labelIndex)" }
+    var id: String { "yaxislabel_\(label)" }
 }
 
 fileprivate struct ChartYAxisGridline: Identifiable {
-    let chartId: Int
     let label: String
     let labelIndex: Int
-    
-    var id: String { "\(chartId)_yaxisgridline_\(label)" }
+    var id: String { "yaxisgridline_\(label)" }
 }
 
 public struct ChartBase<Content: View>: View {
@@ -37,41 +25,34 @@ public struct ChartBase<Content: View>: View {
     /// The current data subset.
     @StateObject var state: ChartState = .init()
     
-    /// The unique identifier of this chart.
-    let chartId: Int
-    
     /// Default initializer.
     init(data: ChartData, @ViewBuilder content: @escaping (ChartState, ChartData, CGSize) -> Content) {
         self.fullData = data
         self.chartContent = content
-        self.chartId = ObjectIdentifier(fullData).hashValue
     }
     
     /// Build the x-axis of this chart.
-    static func xAxisLabels(data: ChartData, chartId: Int) -> some View {
+    static func xAxisLabels(data: ChartData) -> some View {
         let axisConfig = data.config.xAxisConfig
         let xAxisParams = data.computedParameters.xAxisParams
         let height = ChartState.xAxisHeight(for: axisConfig)
-        
-        let labels = xAxisParams.labels.enumerated().map {
-            ChartXAxisLabel(chartId: chartId, label: $0.element, labelIndex: $0.offset)
-        }
         
         return GeometryReader { geometry in
             let labelCount = xAxisParams.labels.count == 1 ? 1 : xAxisParams.labels.count - 1
             if labelCount >= 1 {
                 let spacePerLabel = geometry.size.width / CGFloat(labelCount)
                 HStack(spacing: 0) {
-                    ForEach(labels) { (label: ChartXAxisLabel) in
+                    ForEach(0..<labelCount, id: \.self) { labelIndex in
                         HStack(spacing: 0) {
-                            if label.labelIndex == 0 {
+                            if labelIndex == 0 {
                                 LineShape(edge: .leading)
                                     .stroke(axisConfig.gridStyle.lineColor, style: axisConfig.gridStyle.swiftUIStrokeStyle)
                                     .frame(width: axisConfig.gridStyle.lineWidth)
                             }
                             
+                            let label = xAxisParams.labels[labelIndex]
                             Group {
-                                Text(verbatim: label.label)
+                                Text(verbatim: label)
                                     .foregroundColor(axisConfig.labelFontColor)
                                     .font(axisConfig.labelFont.monospacedDigit())
                                     .padding(.leading, 4)
@@ -140,7 +121,7 @@ public struct ChartBase<Content: View>: View {
     func yAxisLabels(data: ChartData, yAxisParams: ComputedChartAxisData) -> some View {
         let axisConfig = data.config.yAxisConfig
         let labels = yAxisParams.labels.reversed().enumerated().map {
-            ChartYAxisLabel(chartId: self.chartId, label: $0.element, labelIndex: $0.offset)
+            ChartYAxisLabel(label: $0.element, labelIndex: $0.offset)
         }
         
         return ZStack {
@@ -170,11 +151,9 @@ public struct ChartBase<Content: View>: View {
     }
     
     /// Build the y-axis grid lines.
-    static func yAxisGrid(data: ChartData, yAxisParams: ComputedChartAxisData, chartId: Int) -> some View {
+    static func yAxisGrid(data: ChartData, yAxisParams: ComputedChartAxisData) -> some View {
         let gridStyle = data.config.yAxisConfig.gridStyle
-        let labels = yAxisParams.labels.reversed().enumerated().map {
-            ChartYAxisGridline(chartId: chartId, label: $0.element, labelIndex: $0.offset)
-        }
+        let labels = yAxisParams.labels.reversed().enumerated().map { ChartYAxisLabel(label: $0.element, labelIndex: $0.offset) }
         
         return VStack {
             ForEach(labels) { label in
@@ -241,7 +220,7 @@ public struct ChartBase<Content: View>: View {
                     ZStack {
                         Self.xAxisGrid(data: data, size: .init(width: state.chartAreaSize.width * widthMultiplier,
                                                                height: state.chartAreaSize.height))
-                        Self.yAxisGrid(data: data, yAxisParams: yAxisParams, chartId: self.chartId)
+                        Self.yAxisGrid(data: data, yAxisParams: yAxisParams)
                         
                         if !data.isEmpty {
                             self.chartContent(state, data,
@@ -259,7 +238,7 @@ public struct ChartBase<Content: View>: View {
             }
             
             if data.config.xAxisConfig.visible {
-                Self.xAxisLabels(data: data, chartId: self.chartId)
+                Self.xAxisLabels(data: data)
             }
         }
     }
@@ -480,6 +459,6 @@ public struct ChartBase<Content: View>: View {
         .onAppear {
             state.initialize(data: fullData)
         }
-        .id(chartId)
+        .id(ObjectIdentifier(fullData))
     }
 }
