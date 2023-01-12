@@ -13,7 +13,7 @@ struct BarChartPreviews: PreviewProvider {
                 preferredBarWidth: 30,
                 centerBars: true,
                 xAxisConfig: .xAxis(step: .fixed(1),
-                                    scrollingBehaviour: .continuous(visibleValueRange: 5),
+                                    scrollingBehaviour: .segmented(visibleValueRange: 4),
                                     gridStyle: .defaultXAxisStyle),
                 yAxisConfig: .yAxis(baseline: .zero, step: .automatic(preferredSteps: 5), gridStyle: .defaultYAxisStyle),
                 padding: .init(top: 0, leading: 0, bottom: 0, trailing: 0)

@@ -115,7 +115,7 @@ fileprivate struct BarChartViewImpl: View {
         let relativeX = (xValue - xAxisParams.lowerBound)
             / (xAxisParams.upperBound - xAxisParams.lowerBound)
         
-        let horizontalSpacePerBar = size.width / CGFloat(data.computedParameters.sortedXValues.count)
+        let horizontalSpacePerBar = size.width / CGFloat(data.computedParameters.xAxisParams.visibleValueCount)
         let horizontalOffset = ((data.config as? BarChartConfig)?.centerBars ?? false) ? horizontalSpacePerBar * 0.5 : barWidth * 0.5
         
         let (_, positiveTotalY, positiveStops, positiveHighlighted)
@@ -169,7 +169,7 @@ fileprivate struct BarChartViewImpl: View {
         let relativeX = (xValue - xAxisParams.lowerBound)
             / (xAxisParams.upperBound - xAxisParams.lowerBound)
         
-        let horizontalSpacePerBar = size.width / CGFloat(data.computedParameters.sortedXValues.count)
+        let horizontalSpacePerBar = size.width / CGFloat(data.computedParameters.xAxisParams.visibleValueCount)
         let horizontalOffset = ((data.config as? BarChartConfig)?.centerBars ?? false) ? horizontalSpacePerBar * 0.5 : barWidth * 0.5
         
         let (positiveRelativeYs, _, _, positiveHighlighted)

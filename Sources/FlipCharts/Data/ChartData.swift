@@ -14,12 +14,26 @@ internal struct ComputedChartAxisData {
     /// The axis labels.
     let labels: [String]
     
+    /// The length of the longest label.
+    let longestLabelLength: Int
+    
+    /// The amount of visible values.
+    var visibleValueCount: Int {
+        let distance = upperBound - lowerBound
+        guard distance > 0 else { return 0 }
+        
+        return Int(distance / stepSize)
+    }
+    
     /// Default initializer.
-    init(lowerBound: Double, upperBound: Double, stepSize: Double, labels: [String]) {
+    init(lowerBound: Double, upperBound: Double,
+         stepSize: Double, labels: [String],
+         longestLabelLength: Int? = nil) {
         self.lowerBound = lowerBound
         self.upperBound = upperBound
         self.stepSize = stepSize
         self.labels = labels
+        self.longestLabelLength = longestLabelLength ?? (labels.max { $0.count < $1.count }?.count ?? 0)
     }
 }
 
@@ -111,8 +125,8 @@ extension ChartData {
                                                    adjacentDataPoints: [String: [DataPoint]]? = nil) -> ComputedChartData {
         guard (series.first { !$0.isEmpty }) != nil else {
             return .init(min: .zero, max: .zero,
-                         xAxisParams: .init(lowerBound: 0, upperBound: 0, stepSize: 0, labels: []),
-                         yAxisParams: .init(lowerBound: 0, upperBound: 0, stepSize: 0, labels: []),
+                         xAxisParams: .init(lowerBound: 0, upperBound: 0, stepSize: 0, labels: [], longestLabelLength: 0),
+                         yAxisParams: .init(lowerBound: 0, upperBound: 0, stepSize: 0, labels: [], longestLabelLength: 0),
                          sortedXValues: [],
                          adjacentDataPoints: adjacentDataPoints ?? [:])
         }
