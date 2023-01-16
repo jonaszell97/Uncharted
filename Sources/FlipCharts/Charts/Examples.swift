@@ -9,7 +9,7 @@ struct BarChartPreviews: PreviewProvider {
     internal static func createExampleData() -> ChartData {
         let data: ChartData = .init(
             config: BarChartConfig(
-                isStacked: false,
+                isStacked: true,
                 preferredBarWidth: 30,
                 centerBars: true,
                 xAxisConfig: .xAxis(step: .fixed(1),
@@ -19,7 +19,7 @@ struct BarChartPreviews: PreviewProvider {
                 padding: .init(top: 0, leading: 0, bottom: 0, trailing: 0)
             ),
             series: [
-                .init(name: "Series1", yValues: [3, 2, 2, 2, 1, 8, 4], color: .solid(.teal)),
+                .init(name: "Series1", yValues: [3, 2, -2, 2, 1, 8, 4], color: .solid(.teal)),
             ]
         )
         

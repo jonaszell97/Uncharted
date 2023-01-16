@@ -132,34 +132,50 @@ fileprivate struct BarChartViewImpl: View {
         return ZStack {
             // Positive values
             if positiveSpacePercentage > 0 {
-                Rectangle()
-                    .fill(LinearGradient(stops: positiveStops, startPoint: .bottom, endPoint: .top))
-                    .frame(width: barWidth, height: positiveTotalY * size.height * positiveSpacePercentage)
-                    .cornerRadius(barWidth * 0.20, corners: [.topLeft, .topRight])
-                    .offset(x: relativeX * size.width - size.width * 0.5 + horizontalOffset,
-                            y: (1 - positiveTotalY) * (size.height * positiveSpacePercentage * 0.5)
-                            - size.height * negativeSpacePercentage * 0.5)
-                    .opacity(highlighted ? 1 : 0.50)
-                    .onTapGesture {
-                        state.runTapActions(for:
-                                .init(x: xValue, y: positiveValues[0].1), in: positiveValues[0].0)
-                    }
+                let barHeight = positiveTotalY * size.height * positiveSpacePercentage
+                let xOffset = relativeX * size.width - size.width * 0.5 + horizontalOffset
+                
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: barWidth, height: size.height - barHeight)
+                    Rectangle()
+                        .fill(LinearGradient(stops: positiveStops, startPoint: .bottom, endPoint: .top))
+                        .frame(width: barWidth, height: barHeight)
+                        .cornerRadius(barWidth * 0.20, corners: [.topLeft, .topRight])
+                        .opacity(highlighted ? 1 : 0.50)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    state.runTapActions(for:
+                            .init(x: xValue, y: positiveValues[0].1), in: positiveValues[0].0)
+                }
+                .offset(x: xOffset, y: -size.height * negativeSpacePercentage)
             }
             
             // Negative values
             if negativeSpacePercentage > 0 {
-                Rectangle()
-                    .fill(LinearGradient(stops: negativeStops, startPoint: .top, endPoint: .bottom))
-                    .frame(width: barWidth, height: negativeTotalY * size.height * negativeSpacePercentage)
-                    .cornerRadius(barWidth * 0.20, corners: [.bottomLeft, .bottomRight])
-                    .offset(x: relativeX * size.width - size.width * 0.5 + horizontalOffset,
-                            y: -(1 - negativeTotalY) * (size.height * negativeSpacePercentage * 0.5)
-                            + size.height * positiveSpacePercentage * 0.5)
-                    .opacity(highlighted ? 1 : 0.50)
-                    .onTapGesture {
-                        state.runTapActions(for:
-                                .init(x: xValue, y: negativeValues[0].1), in: negativeValues[0].0)
-                    }
+                let barHeight = negativeTotalY * size.height * negativeSpacePercentage
+                let xOffset = relativeX * size.width - size.width * 0.5 + horizontalOffset
+                
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(LinearGradient(stops: negativeStops, startPoint: .top, endPoint: .bottom))
+                        .frame(width: barWidth, height: barHeight)
+                        .cornerRadius(barWidth * 0.20, corners: [.bottomLeft, .bottomRight])
+                        .opacity(highlighted ? 1 : 0.50)
+                    
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: barWidth, height: size.height - barHeight)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    state.runTapActions(for:
+                            .init(x: xValue, y: negativeValues[0].1), in: negativeValues[0].0)
+                }
+                .offset(x: xOffset, y: size.height * positiveSpacePercentage)
+                
             }
         }
     }
@@ -189,19 +205,25 @@ fileprivate struct BarChartViewImpl: View {
                 ForEach(0..<positiveRelativeYs.count, id: \.self) { i in
                     let relativeY: Double = positiveRelativeYs[i]
                     let color: ColorStyle = positiveValues[i].2
+                    let barHeight = relativeY * size.height * positiveSpacePercentage
+                    let xOffset = relativeX * size.width - size.width * 0.5 + horizontalOffset
                     
-                    Rectangle()
-                        .fill(color.swiftUIShapeStyle)
-                        .frame(width: barWidth, height: relativeY * size.height * positiveSpacePercentage)
-                        .cornerRadius(barWidth * 0.20, corners: [.topLeft, .topRight])
-                        .offset(x: relativeX * size.width - size.width * 0.5 + horizontalOffset,
-                                y: (1 - relativeY) * (size.height * positiveSpacePercentage * 0.5)
-                                - size.height * negativeSpacePercentage * 0.5)
-                        .opacity(highlighted ? 1 : 0.50)
-                        .onTapGesture {
-                            state.runTapActions(for:
-                                    .init(x: xValue, y: positiveValues[i].1), in: positiveValues[i].0)
-                        }
+                    VStack(spacing: 0) {
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(width: barWidth, height: size.height - barHeight)
+                        Rectangle()
+                            .fill(color.swiftUIShapeStyle)
+                            .frame(width: barWidth, height: barHeight)
+                            .cornerRadius(barWidth * 0.20, corners: [.topLeft, .topRight])
+                            .opacity(highlighted ? 1 : 0.50)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        state.runTapActions(for:
+                                .init(x: xValue, y: positiveValues[i].1), in: positiveValues[i].0)
+                    }
+                    .offset(x: xOffset, y: -size.height * negativeSpacePercentage)
                 }
             }
             
@@ -211,19 +233,25 @@ fileprivate struct BarChartViewImpl: View {
                 ForEach(0..<negativeRelativeYs.count, id: \.self) { i in
                     let relativeY: Double = negativeRelativeYs[i]
                     let color: ColorStyle = negativeValues[i].2
+                    let barHeight = relativeY * size.height * negativeSpacePercentage
+                    let xOffset = relativeX * size.width - size.width * 0.5 + horizontalOffset
                     
-                    Rectangle()
-                        .fill(color.swiftUIShapeStyle)
-                        .frame(width: barWidth, height: relativeY * size.height * negativeSpacePercentage)
-                        .cornerRadius(barWidth * 0.20, corners: [.bottomLeft, .bottomRight])
-                        .offset(x: relativeX * size.width - size.width * 0.5 + horizontalOffset,
-                                y: -(1 - relativeY) * (size.height * negativeSpacePercentage * 0.5)
-                                + size.height * positiveSpacePercentage * 0.5)
-                        .opacity(highlighted ? 1 : 0.50)
-                        .onTapGesture {
-                            state.runTapActions(for:
-                                    .init(x: xValue, y: negativeValues[i].1), in: negativeValues[i].0)
-                        }
+                    VStack(spacing: 0) {
+                        Rectangle()
+                            .fill(color.swiftUIShapeStyle)
+                            .frame(width: barWidth, height: barHeight)
+                            .cornerRadius(barWidth * 0.20, corners: [.bottomLeft, .bottomRight])
+                            .opacity(highlighted ? 1 : 0.50)
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(width: barWidth, height: size.height - barHeight)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        state.runTapActions(for:
+                                .init(x: xValue, y: negativeValues[i].1), in: negativeValues[i].0)
+                    }
+                    .offset(x: xOffset, y: size.height * positiveSpacePercentage)
                 }
             }
         }
