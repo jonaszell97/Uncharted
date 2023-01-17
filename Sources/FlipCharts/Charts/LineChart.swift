@@ -201,11 +201,11 @@ public struct LineChart: View {
     /// The data to use for this chart.
     let fullData: ChartData
     
-    /// Optional binding that is updated with the currently visible chart data.
-    @Binding var visibleChartData: ChartData?
+    /// Optional binding that is updated with the chart state.
+    @Binding var chartState: ChartStateProxy?
     
     /// Default initializer.
-    public init(data: ChartData, visibleChartData: Binding<ChartData?> = .constant(nil)) {
+    public init(data: ChartData, chartState: Binding<ChartStateProxy?> = .constant(nil)) {
         if !(data.config is LineChartConfig) {
             self.fullData = .init(config: LineChartConfig(config: data.config), series: data.series)
         }
@@ -213,7 +213,7 @@ public struct LineChart: View {
             self.fullData = data
         }
         
-        self._visibleChartData = visibleChartData
+        self._chartState = chartState
     }
     
     private struct LineChartPart: Identifiable {
@@ -282,10 +282,10 @@ public struct LineChart: View {
                 }
             }
             .onAppear {
-                self.visibleChartData = data
+                self.chartState = .init(state: state)
             }
             .onChange(of: data.computedParameters.xAxisParams) { _ in
-                self.visibleChartData = data
+                self.chartState = .init(state: state)
             }
             .onTouch { tapPos in
                 let xAxisParams = data.computedParameters.xAxisParams
