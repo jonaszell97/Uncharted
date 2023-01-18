@@ -2,7 +2,7 @@
 import SwiftUI
 import Toolbox
 
-public enum TimeBasedChartScope: String, CaseIterable {
+public enum TimeSeriesScope: String, CaseIterable {
     /// Daily resolution.
     case day
     
@@ -22,7 +22,7 @@ public enum TimeBasedChartScope: String, CaseIterable {
     case year
 }
 
-public enum ChartTimeIntervalFormat {
+public enum ChartScopeFormat {
     /// Single-letter short format.
     case short
     
@@ -30,18 +30,18 @@ public enum ChartTimeIntervalFormat {
     case long
     
     /// Custom format.
-    case custom(_ formatter: (TimeBasedChartScope) -> String)
+    case custom(_ formatter: (TimeSeriesScope) -> String)
 }
 
 // MARK: ChartTimeInterval extensions
 
-extension TimeBasedChartScope: Identifiable, Hashable {
+extension TimeSeriesScope: Identifiable, Hashable {
     public var id: Self { self }
 }
 
-extension TimeBasedChartScope {
+extension TimeSeriesScope {
     /// The interval to use as a base for all transformations.
-    public static let baseInterval: TimeBasedChartScope = .day
+    public static let baseInterval: TimeSeriesScope = .day
     
     public func dateComponents(times value: Int) -> DateComponents {
         var components = DateComponents()
@@ -68,11 +68,11 @@ extension TimeBasedChartScope {
     }
 }
 
-// MARK: ChartTimeIntervalFormat extensions
+// MARK: ChartScopeFormat extensions
 
-public extension ChartTimeIntervalFormat {
+public extension ChartScopeFormat {
     /// Format a time interval.
-    func callAsFunction(_ interval: TimeBasedChartScope, languageCode: String? = nil) -> String {
+    func callAsFunction(_ interval: TimeSeriesScope, languageCode: String? = nil) -> String {
         switch self {
         case .short:
             switch languageCode {
@@ -287,6 +287,95 @@ internal func defaultMonthFormat(month: Int, languageCode: String? = nil) -> Str
             return "Dez"
         default:
             return "Dec"
+        }
+    }
+}
+
+internal func longMonthFormat(month: Int, languageCode: String? = nil) -> String {
+    switch month {
+    case 1:
+        switch languageCode {
+        case "de":
+            return "Januar"
+        default:
+            return "January"
+        }
+    case 2:
+        switch languageCode {
+        case "de":
+            return "Februar"
+        default:
+            return "February"
+        }
+    case 3:
+        switch languageCode {
+        case "de":
+            return "März"
+        default:
+            return "March"
+        }
+    case 4:
+        switch languageCode {
+        case "de":
+            return "April"
+        default:
+            return "April"
+        }
+    case 5:
+        switch languageCode {
+        case "de":
+            return "Mai"
+        default:
+            return "May"
+        }
+    case 6:
+        switch languageCode {
+        case "de":
+            return "Juni"
+        default:
+            return "June"
+        }
+    case 7:
+        switch languageCode {
+        case "de":
+            return "Juli"
+        default:
+            return "July"
+        }
+    case 8:
+        switch languageCode {
+        case "de":
+            return "August"
+        default:
+            return "August"
+        }
+    case 9:
+        switch languageCode {
+        case "de":
+            return "September"
+        default:
+            return "September"
+        }
+    case 10:
+        switch languageCode {
+        case "de":
+            return "Oktober"
+        default:
+            return "October"
+        }
+    case 11:
+        switch languageCode {
+        case "de":
+            return "November"
+        default:
+            return "November"
+        }
+    default:
+        switch languageCode {
+        case "de":
+            return "Dezember"
+        default:
+            return "December"
         }
     }
 }

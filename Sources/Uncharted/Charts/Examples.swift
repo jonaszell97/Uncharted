@@ -4,12 +4,12 @@
 import SwiftUI
 import Toolbox
 
-struct BarChartPreviews: PreviewProvider {
+struct BarChartPreviews {
     static let seed: UInt64 = 1234
     internal static func createExampleData() -> ChartData {
         let data: ChartData = .init(
             config: BarChartConfig(
-                isStacked: false,
+                isStacked: true,
                 preferredBarWidth: 30,
                 centerBars: true,
                 xAxisConfig: .xAxis(step: .fixed(1),
@@ -19,7 +19,7 @@ struct BarChartPreviews: PreviewProvider {
                 padding: .init(top: 0, leading: 0, bottom: 0, trailing: 0)
             ),
             series: [
-                .init(name: "Series1", yValues: [3, 2, 2, 2, 1, 8, 4], color: .solid(.teal)),
+                .init(name: "Series1", yValues: [3, 2, -2, 2, 1, 8, 4], color: .solid(.teal)),
             ]
         )
         
@@ -37,7 +37,7 @@ struct BarChartPreviews: PreviewProvider {
     }
 }
 
-struct LineChartPreviews: PreviewProvider {
+struct LineChartPreviews {
     internal static let seed: UInt64 = 685_546_733
     internal static func createExampleData() -> ChartData {
         let data: ChartData = .init(
@@ -75,7 +75,7 @@ struct LineChartPreviews: PreviewProvider {
     }
 }
 
-struct RandomizableChart_Previews: PreviewProvider {
+struct RandomizableChart_Previews {
     static var previews: some View {
         let bounds = UIScreen.main.bounds.size
         
@@ -95,53 +95,75 @@ struct RandomizableChart_Previews: PreviewProvider {
     }
 }
 
-struct TimeBasedChartPreviews: PreviewProvider {
-    internal static let seed: UInt64 = 685_546_733
-    internal static func createExampleData() -> ChartData {
-        let data: ChartData = .init(
-            config: LineChartConfig(
-                xAxisConfig: .xAxis(step: .automatic(preferredSteps: 4),
-                                    scrollingBehaviour: .continuous(visibleValueRange: 10),
-                                    gridStyle: .defaultXAxisStyle),
-                yAxisConfig: .yAxis(step: .automatic(preferredSteps: 5), gridStyle: .defaultYAxisStyle),
-                padding: .init(top: 0, leading: 0, bottom: 0, trailing: 0),
-                noDataAvailableText: "No Data"
-            ),
-            series: [
-                .init(name: "Series2", yValues: (0...22).map { Double($0) }, color: .solid(.mint)),
-            ]
-        )
-        
-        return data
-    }
-    
+struct TimeSeriesPreviews: PreviewProvider {
     struct PreviewView: View {
-        @State var currentTimeInterval: TimeBasedChartScope = .week
-        @State var visibleData: ChartData? = nil
+        static let dateFormatter: Foundation.DateFormatter = {
+            let dateFormatter = Foundation.DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+            dateFormatter.timeZone = .utc
+            
+            return dateFormatter
+        }()
         
-        let data = createExampleData()
+        static func date(from string: String) -> Date {
+            let date = dateFormatter.date(from: string)
+            return date!
+        }
         
+        static let fullData: [(Date, Double)] = [
+            (date(from: "2023-01-01T00:00:00+0000"), 1),
+            (date(from: "2023-01-02T00:00:00+0000"), 2),
+            (date(from: "2023-01-03T00:00:00+0000"), 3),
+            (date(from: "2023-01-04T00:00:00+0000"), 4),
+            (date(from: "2023-01-05T00:00:00+0000"), 5),
+            (date(from: "2023-01-06T00:00:00+0000"), 6),
+            (date(from: "2023-01-07T00:00:00+0000"), 7),
+            (date(from: "2023-01-08T00:00:00+0000"), 8),
+            (date(from: "2023-01-09T00:00:00+0000"), 9),
+            (date(from: "2023-01-10T00:00:00+0000"), 10),
+            (date(from: "2023-03-10T00:00:00+0000"), 15),
+        ]
+        
+        @State var currentScope: TimeSeriesScope = .init(rawValue: UserDefaults.standard.string(forKey: "_time_interval") ?? "") ?? .week {
+            didSet {
+                UserDefaults.standard.set(currentScope.rawValue, forKey: "_time_interval")
+            }
+        }
+        
+        @State var chartState: ChartStateProxy? = nil
+        
+        let source = InterpolatingTimeSeriesDataSource(data: Self.fullData)
         var body: some View {
-            let baseDate = Date().startOfDay
-            return TimeBasedChartView(data: .init(baseData: data, baseStartDate: baseDate, baseInterval: .init()),
-                                      currentTimeInterval: $currentTimeInterval,
-                                      dataAggregationMethod: .arithmeticMean,
-                                      buildXAxisLabelFormatter: nil) { data in
+           TimeSeriesView(source: source, scope: $currentScope) { timeSeriesData in
+                let config = LineChartConfig(
+                    xAxisConfig: .xAxis(step: .automatic(preferredSteps: 4),
+                                        scrollingBehaviour: .continuous(visibleValueRange: 10),
+                                        gridStyle: .defaultXAxisStyle,
+                                        labelFormatter: currentScope.createDefaultFormatter(startDate:
+                                                                                                timeSeriesData.interval.start)),
+                    yAxisConfig: .yAxis(step: .automatic(preferredSteps: 5), gridStyle: .defaultYAxisStyle),
+                    padding: .init(top: 0, leading: 0, bottom: 0, trailing: 0),
+                    noDataAvailableText: "No Data")
+               
+                let chartData = ChartData(config: timeSeriesData.configure(config), series: [
+                    DataSeries(name: "Series1", data: timeSeriesData.values, color: .solid(.red)),
+                ])
+                
                 VStack {
-                    if let visibleData {
+//                    if let chartState {
                         HStack {
-                            Text(verbatim: formatCurrentTimeInterval(baseDate: baseDate, data: visibleData,
-                                                                     resolution: currentTimeInterval))
-                            .foregroundColor(.primary.opacity(0.50))
+                            Text(verbatim: currentScope.formatTimeInterval(timeSeriesData.interval))
+                                .foregroundColor(.primary.opacity(0.50))
                             Spacer()
                         }
                         .padding(.trailing)
-                    }
+//                    }
                     
-                    LineChart(data: data, visibleChartData: $visibleData)
+                    LineChart(data: chartData, chartState: $chartState)
                         .frame(height: 300)
                     
-                    TimeBasedChartDefaultIntervalPickerView(currentTimeInterval: $currentTimeInterval)
+                    TimeSeriesDefaultIntervalPickerView(currentScope: $currentScope)
                         .padding()
                 }
                 .padding()
@@ -150,10 +172,7 @@ struct TimeBasedChartPreviews: PreviewProvider {
     }
     
     static var previews: some View {
-        return VStack {
-            Text("\(seed)")
-            PreviewView()
-        }
+        PreviewView()
     }
 }
 

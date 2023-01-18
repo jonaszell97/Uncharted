@@ -284,7 +284,7 @@ internal extension ChartAxisConfig {
         case .minimumValue:
             lowerBound = minimumValue
         case .clamp(let upperBound):
-            lowerBound = max(minimumValue, upperBound)
+            lowerBound = min(minimumValue, upperBound)
         }
         
         let upperBound: Double
@@ -292,7 +292,7 @@ internal extension ChartAxisConfig {
         case .maximumValue:
             upperBound = maximumValue
         case .clamp(let lowerBound):
-            upperBound = min(maximumValue, lowerBound)
+            upperBound = max(maximumValue, lowerBound)
         }
         
         let stepSize: Double

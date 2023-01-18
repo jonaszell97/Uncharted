@@ -3,6 +3,25 @@ import SwiftUI
 import Toolbox
 import Panorama
 
+public struct ChartStateProxy {
+    /// The chart state.
+    internal var state: ChartState
+    
+    /// The complete dataset.
+    public var completeData: ChartData { state.fullData }
+    
+    /// The currently visible data segment.
+    public var currentSegmentData: ChartData { state.currentDataSubset }
+    
+    /// The index of the currently visible data subset.
+    public var currentSegmentIndex: Int { state.currentSubsetIndex }
+    
+    /// Internal initializer.
+    internal init(state: ChartState) {
+        self.state = state
+    }
+}
+
 internal class ChartState: ObservableObject {
     /// The full data set of this chart.
     var fullData: ChartData
