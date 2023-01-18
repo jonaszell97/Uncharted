@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "FlipCharts",
+    name: "Uncharted",
     platforms: [
         .iOS(.v15),
         .macOS(.v12),
     ],
     products: [
         .library(
-            name: "FlipCharts",
-            targets: ["FlipCharts"]),
+            name: "Uncharted",
+            targets: ["Uncharted"]),
     ],
     dependencies: [
         .package(url: "/Users/jonaszell/Toolbox", branch: "dev"),
@@ -20,10 +20,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "FlipCharts",
+            name: "Uncharted",
             dependencies: ["Toolbox", "Panorama"]),
         .testTarget(
-            name: "FlipChartsTests",
-            dependencies: ["FlipCharts", "Toolbox", "Panorama"]),
+            name: "UnchartedTests",
+            dependencies: ["Uncharted", "Toolbox", "Panorama"]),
     ]
 )

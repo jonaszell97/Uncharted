@@ -1,9 +1,9 @@
 
 import Foundation
 import XCTest
-@testable import FlipCharts
+@testable import Uncharted
 
-final class FlipChartsTests: XCTestCase {
+final class UnchartedTests: XCTestCase {
     let dateFormatter: Foundation.DateFormatter = {
         let dateFormatter = Foundation.DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
