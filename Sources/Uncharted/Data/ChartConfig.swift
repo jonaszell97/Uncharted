@@ -171,7 +171,7 @@ public struct ChartAxisConfig {
     /// Y-axis initializer.
     public static func yAxis(title: String? = nil,
                              visible: Bool = true,
-                             baseline: ChartAxisBaseline = .minimumValue,
+                             baseline: ChartAxisBaseline = .zero,
                              topline: ChartAxisTopline = .maximumValue,
                              step: ChartAxisStep = .automatic(),
                              scrollingThresholdTranslation: Double = 50,

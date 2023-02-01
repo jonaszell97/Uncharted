@@ -44,7 +44,7 @@ final class UnchartedTests: XCTestCase {
                 data.remove(at: index)
             }
             
-            let source = InterpolatingTimeSeriesDataSource(data: data)
+            let source = AveragingTimeSeriesDataSource(data: data)
             
             // Whole interval range
             XCTAssertEqual(source.range(in: DateInterval(start: dates[0], end: dates[9])), 1...10)
@@ -55,14 +55,14 @@ final class UnchartedTests: XCTestCase {
             
             // Whole interval average
             if index == nil {
-                XCTAssertEqual(source.averageValue(in: DateInterval(start: dates[0], end: dates[9])), 5.5)
+                XCTAssertEqual(source.combinedValue(in: DateInterval(start: dates[0], end: dates[9])), 5.5)
             }
             
             // First/last 5 days average
             if index == nil {
-                XCTAssertEqual(source.averageValue(in: DateInterval(start: dates[0], end: dates[4])), 3)
+                XCTAssertEqual(source.combinedValue(in: DateInterval(start: dates[0], end: dates[4])), 3)
             }
-            XCTAssertEqual(source.averageValue(in: DateInterval(start: dates[5], end: dates[9])), 8)
+            XCTAssertEqual(source.combinedValue(in: DateInterval(start: dates[5], end: dates[9])), 8)
             
             // Existing values
             for i in 0..<10 {

@@ -6,8 +6,8 @@ public protocol TimeSeriesDataSource {
     /// - returns: The value for a given date.
     func value(on date: Date) -> Double?
     
-    /// - returns: The average value within a given date interval.
-    func averageValue(in interval: DateInterval) -> Double?
+    /// - returns: The combined value within a given date interval. It is up to the data source to decide how values are combined.
+    func combinedValue(in interval: DateInterval) -> Double?
     
     /// - returns: The maximum and minimum value within a given date interval.
     func range(in interval: DateInterval) -> ClosedRange<Double>?
@@ -16,7 +16,7 @@ public protocol TimeSeriesDataSource {
     var interval: DateInterval { get }
 }
 
-public struct InterpolatingTimeSeriesDataSource {
+public struct SummingTimeSeriesDataSource {
     /// The available data points.
     var data: [(Date, Double)]
     
@@ -43,7 +43,85 @@ public struct InterpolatingTimeSeriesDataSource {
     }
 }
 
-extension InterpolatingTimeSeriesDataSource: TimeSeriesDataSource {
+extension SummingTimeSeriesDataSource: TimeSeriesDataSource {
+    /// Return the value for a given date.
+    public func value(on date: Date) -> Double? {
+        data.first { $0.0 == date }?.1
+    }
+    
+    /// - returns: The sum of the values within a given date interval.
+    public func combinedValue(in interval: DateInterval) -> Double? {
+        let dataInterval = self.interval
+        guard dataInterval.overlaps(interval) else {
+            return nil
+        }
+        
+        var valuesInRange: [Double] = []
+        for (date, value) in data {
+            guard date < interval.end else {
+                break
+            }
+            guard date >= interval.start else {
+                continue
+            }
+            
+            valuesInRange.append(value)
+        }
+        
+        return valuesInRange.reduce(0) { $0 + $1 }
+    }
+    
+    /// - returns: The maximum and minimum value within a given date interval.
+    public func range(in interval: DateInterval) -> ClosedRange<Double>? {
+        let dataInterval = self.interval
+        guard dataInterval.overlaps(interval) else {
+            return nil
+        }
+        
+        var valuesInRange: [Double] = []
+        for (date, value) in data {
+            guard date <= interval.end else {
+                break
+            }
+            guard date >= interval.start else {
+                continue
+            }
+            
+            valuesInRange.append(value)
+        }
+        
+        return (valuesInRange.min() ?? 0)...(valuesInRange.max() ?? 0)
+    }
+}
+
+public struct AveragingTimeSeriesDataSource {
+    /// The available data points.
+    var data: [(Date, Double)]
+    
+    /// The start of the data range.
+    var startDate: Date { data.first?.0 ?? .distantFuture }
+    
+    /// The end of the data range.
+    var endDate: Date { data.last?.0 ?? .distantPast }
+    
+    /// The interval of values.
+    public var interval: DateInterval {
+        guard !data.isEmpty else { return .init(start: .distantFuture, duration: 0) }
+        return .init(start: data.first!.0, end: data.last!.0)
+    }
+    
+    /// Initialize from a dataset.
+    public init(data: [(Date, Double)]) {
+        self.data = data.sorted { $0.0 < $1.0 }
+    }
+    
+    /// Initialize from a dataset.
+    public init(data: [Date: Double]) {
+        self.init(data: data.map { ($0.key, $0.value) })
+    }
+}
+
+extension AveragingTimeSeriesDataSource: TimeSeriesDataSource {
     /// Return the value for a given date.
     public func value(on date: Date) -> Double? {
         guard date >= startDate, date <= endDate else {
@@ -72,7 +150,7 @@ extension InterpolatingTimeSeriesDataSource: TimeSeriesDataSource {
     }
     
     /// - returns: The average value within a given date interval.
-    public func averageValue(in interval: DateInterval) -> Double? {
+    public func combinedValue(in interval: DateInterval) -> Double? {
         let dataInterval = self.interval
         guard dataInterval.overlaps(interval) else {
             return nil

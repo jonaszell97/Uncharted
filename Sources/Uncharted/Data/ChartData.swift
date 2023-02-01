@@ -20,7 +20,7 @@ internal struct ComputedChartAxisData {
     /// The amount of visible values.
     var visibleValueCount: Int {
         let distance = upperBound - lowerBound
-        guard distance > 0 else { return 0 }
+        guard distance > 0, stepSize > 0 else { return 0 }
         
         return Int(distance / stepSize)
     }

@@ -15,8 +15,8 @@ let package = Package(
             targets: ["Uncharted"]),
     ],
     dependencies: [
-        .package(url: "/Users/jonaszell/Toolbox", branch: "dev"),
-        .package(url: "/Users/jonaszell/Panorama", branch: "dev"),
+        .package(url: "https://github.com/jonaszell97/Toolbox.git", from: "0.1.0"),
+        .package(url: "https://github.com/jonaszell97/Panorama.git", from: "0.1.0"),
     ],
     targets: [
         .target(

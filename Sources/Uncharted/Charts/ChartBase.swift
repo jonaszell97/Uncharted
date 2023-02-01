@@ -16,17 +16,18 @@ fileprivate struct ChartYAxisGridline: Identifiable {
 }
 
 public struct ChartBase<Content: View>: View {
+    /// The current data subset.
+    @ObservedObject var state: ChartState
+    
     /// The full chart data.
     let fullData: ChartData
     
     /// The chart content builder.
-    let chartContent: (ChartState, ChartData, CGSize) -> Content
-    
-    /// The current data subset.
-    @StateObject var state: ChartState = .init()
+    let chartContent: (ObservedChartState, ChartData, CGSize) -> Content
     
     /// Default initializer.
-    init(data: ChartData, @ViewBuilder content: @escaping (ChartState, ChartData, CGSize) -> Content) {
+    init(state: ChartState, data: ChartData, @ViewBuilder content: @escaping (ObservedChartState, ChartData, CGSize) -> Content) {
+        self.state = state
         self.fullData = data
         self.chartContent = content
     }
@@ -83,7 +84,7 @@ public struct ChartBase<Content: View>: View {
         let gridStyle = axisConfig.gridStyle
         let xAxisParams = data.computedParameters.xAxisParams
         
-        let labelCount = data.isEmpty ? 3 : xAxisParams.labels.count - 1
+        let labelCount = xAxisParams.labels.isEmpty ? 3 : xAxisParams.labels.count - 1
         let spacePerLabel = size.width / CGFloat(labelCount)
         
         return HStack(spacing: 0) {
@@ -212,9 +213,7 @@ public struct ChartBase<Content: View>: View {
     }
     
     /// Build the x-axis, the data grid and the chart content.
-    func xAxisAndContent(data: ChartData, yAxisParams: ComputedChartAxisData,
-                         widthMultiplier: CGFloat = 1,
-                         onContentAppear: Optional<() -> Void> = nil) -> some View {
+    func xAxisAndContent(data: ChartData, yAxisParams: ComputedChartAxisData, widthMultiplier: CGFloat = 1) -> some View {
         VStack(spacing: 0) {
             ZStack {
                 if state.chartAreaSize.magnitudeSquared.isZero {
@@ -232,12 +231,9 @@ public struct ChartBase<Content: View>: View {
                         Self.yAxisGrid(data: data, yAxisParams: yAxisParams)
                         
                         if !data.isEmpty {
-                            self.chartContent(state, data,
+                            self.chartContent(state.observedState, data,
                                               .init(width: state.chartAreaSizeWithPadding.width * widthMultiplier,
                                                     height: state.chartAreaSizeWithPadding.height))
-                            .onAppear {
-                                onContentAppear?()
-                            }
                             
                             self.markersView(data: data, yAxisParams: yAxisParams,
                                              widthMultiplier: widthMultiplier)
@@ -309,17 +305,17 @@ public struct ChartBase<Content: View>: View {
                 }
                 .frame(width: size.width, height: size.height)
                 .onAppear {
-                    guard state.appearanceAnimationProgress.isZero else {
+                    guard state.observedState.appearanceAnimationProgress.isZero else {
                         return
                     }
                     
                     if let animation = fullData.config.animation {
                         withAnimation(animation) {
-                            state.appearanceAnimationProgress = 1
+                            state.observedState.appearanceAnimationProgress = 1
                         }
                     }
                     else {
-                        state.appearanceAnimationProgress = 1
+                        state.observedState.appearanceAnimationProgress = 1
                     }
                 }
             }
@@ -338,17 +334,17 @@ public struct ChartBase<Content: View>: View {
                 self.xAxisAndContent(data: state.currentDataSubset, yAxisParams: yAxisParams)
                     .frame(width: size.width, height: size.height)
                     .onAppear {
-                        guard state.appearanceAnimationProgress.isZero else {
+                        guard state.observedState.appearanceAnimationProgress.isZero else {
                             return
                         }
                         
                         if let animation = fullData.config.animation {
                             withAnimation(animation) {
-                                state.appearanceAnimationProgress = 1
+                                state.observedState.appearanceAnimationProgress = 1
                             }
                         }
                         else {
-                            state.appearanceAnimationProgress = 1
+                            state.observedState.appearanceAnimationProgress = 1
                         }
                     }
             }
@@ -411,17 +407,17 @@ public struct ChartBase<Content: View>: View {
                 }
                 .frame(width: size.width, height: size.height)
                 .onAppear {
-                    guard state.appearanceAnimationProgress.isZero else {
+                    guard state.observedState.appearanceAnimationProgress.isZero else {
                         return
                     }
                     
                     if let animation = fullData.config.animation {
                         withAnimation(animation) {
-                            state.appearanceAnimationProgress = 1
+                            state.observedState.appearanceAnimationProgress = 1
                         }
                     }
                     else {
-                        state.appearanceAnimationProgress = 1
+                        state.observedState.appearanceAnimationProgress = 1
                     }
                 }
             }
@@ -468,6 +464,7 @@ public struct ChartBase<Content: View>: View {
         .onAppear {
             state.initialize(data: fullData)
         }
+        .transformPreference(ChartStateProxyKey.self) { $0 = ChartStateProxy(state: state) }
         .id(ObjectIdentifier(fullData))
     }
 }
