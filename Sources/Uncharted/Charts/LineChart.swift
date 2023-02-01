@@ -22,22 +22,27 @@ fileprivate struct LineChartTapView: View {
     /// The y-axis configuration.
     let yAxisParams: ComputedChartAxisData
     
+    /// The grid style.
+    let gridStyle: GridStyle
+    
     /// The points to draw.
     let points: [DataPoint]
     
     /// The animation progress percentage.
-    @ObservedObject var state: ChartState
+    @ObservedObject var state: ObservedChartState
     
     init(size: CGSize,
          series: DataSeries,
          xAxisParams: ComputedChartAxisData,
          yAxisParams: ComputedChartAxisData,
          adjacentDataPoints: [DataPoint]?,
-         state: ChartState) {
+         gridStyle: GridStyle,
+         state: ObservedChartState) {
         self.size = size
         self.series = series
         self.xAxisParams = xAxisParams
         self.yAxisParams = yAxisParams
+        self.gridStyle = gridStyle
         self.state = state
         
         var points = series.data
@@ -76,7 +81,6 @@ fileprivate struct LineChartTapView: View {
         
         return ZStack {
             if highlighted {
-                let gridStyle = state.fullData.config.xAxisConfig.gridStyle
                 LineShape(edge: .leading)
                     .stroke(series.color.swiftUIShapeStyle,
                             style: gridStyle.swiftUIStrokeStyle(lineWidth: gridStyle.lineWidth * 3))
@@ -118,14 +122,14 @@ fileprivate struct LineChartLineView: View {
     let points: [DataPoint]
     
     /// The animation progress percentage.
-    @ObservedObject var state: ChartState
+    @ObservedObject var state: ObservedChartState
     
     init(size: CGSize,
          series: DataSeries,
          xAxisParams: ComputedChartAxisData,
          yAxisParams: ComputedChartAxisData,
          adjacentDataPoints: [DataPoint]?,
-         state: ChartState) {
+         state: ObservedChartState) {
         self.size = size
         self.series = series
         self.xAxisParams = xAxisParams
@@ -166,14 +170,14 @@ fileprivate struct LineChartPointsView: View {
     let points: [DataPoint]
     
     /// The animation progress percentage.
-    @ObservedObject var state: ChartState
+    @ObservedObject var state: ObservedChartState
     
     init(size: CGSize,
          series: DataSeries,
          xAxisParams: ComputedChartAxisData,
          yAxisParams: ComputedChartAxisData,
          adjacentDataPoints: [DataPoint]?,
-         state: ChartState) {
+         state: ObservedChartState) {
         self.size = size
         self.series = series
         self.xAxisParams = xAxisParams
@@ -197,23 +201,26 @@ fileprivate struct LineChartPointsView: View {
     }
 }
 
-public struct LineChart: View {
+public struct LineChart: View, Equatable {
     /// The data to use for this chart.
     let fullData: ChartData
     
-    /// Optional binding that is updated with the chart state.
-    @Binding var chartState: ChartStateProxy?
+    /// The current data subset.
+    @StateObject var state: ChartState = .init()
+    
+    /// Avoid unnecessary view updates.
+    public static func ==(lhs: LineChart, rhs: LineChart) -> Bool {
+        lhs.fullData.dataHash == rhs.fullData.dataHash
+    }
     
     /// Default initializer.
-    public init(data: ChartData, chartState: Binding<ChartStateProxy?> = .constant(nil)) {
+    public init(data: ChartData) {
         if !(data.config is LineChartConfig) {
             self.fullData = .init(config: LineChartConfig(config: data.config), series: data.series)
         }
         else {
             self.fullData = data
         }
-        
-        self._chartState = chartState
     }
     
     private struct LineChartPart: Identifiable {
@@ -236,7 +243,7 @@ public struct LineChart: View {
     }
     
     public var body: some View {
-        ChartBase(data: fullData) { state, data, size in
+        ChartBase(state: state, data: fullData) { state, data, size in
             let parts = data.series.enumerated().map {
                 LineChartPart(name: $0.element.name, minX: $0.element.min.x, maxX: $0.element.max.x, index: $0.offset)
             }
@@ -277,15 +284,10 @@ public struct LineChart: View {
                                      xAxisParams: data.computedParameters.xAxisParams,
                                      yAxisParams: data.computedParameters.yAxisParams,
                                      adjacentDataPoints: data.computedParameters.adjacentDataPoints[series.name],
+                                     gridStyle: fullData.config.xAxisConfig.gridStyle,
                                      state: state)
                         .frame(width: size.width, height: size.height)
                 }
-            }
-            .onAppear {
-                self.chartState = .init(state: state)
-            }
-            .onChange(of: data.computedParameters.xAxisParams) { _ in
-                self.chartState = .init(state: state)
             }
             .onTouch { tapPos in
                 let xAxisParams = data.computedParameters.xAxisParams
