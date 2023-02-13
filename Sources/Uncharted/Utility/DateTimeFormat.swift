@@ -2,27 +2,41 @@
 import SwiftUI
 import Toolbox
 
+/// The visible time interval on the x-axis of a ``TimeSeriesView``.
+///
+/// This enumeration defines the time interval that is visible on the x-axis of a time series chart.
+/// The following intervals are supported:
+///
+/// | Scope                                                            | Step Size | Axis Ticks |
+/// | ---------------------------------------------------------- | ------------- | -------------- |
+/// | ``TimeSeriesScope/day``                   | 1 hour      | 24              |
+/// | ``TimeSeriesScope/week``                 | 1 day       | 7                |
+/// | ``TimeSeriesScope/month``               | 1 day       | 32              |
+/// | ``TimeSeriesScope/threeMonths``  | 1 month   | 3               |
+/// | ``TimeSeriesScope/sixMonths``      | 1 month   | 6                |
+/// | ``TimeSeriesScope/year``                 | 1 month   | 12              |
 public enum TimeSeriesScope: String, CaseIterable {
-    /// Daily resolution.
+    /// Daily resolution with 24 steps of 1 hour.
     case day
     
-    /// Weekly resolution.
+    /// Weekly resolution with 7 steps of 1 day.
     case week
     
-    /// Monthly resolution.
+    /// Monthly resolution with 32 steps of 1 day.
     case month
     
-    /// 3-month resolution.
+    /// 3-month resolution with 3 steps of 1 month.
     case threeMonths
     
-    /// 6-month resolution.
+    /// 6-month resolution with 6 steps of 1 month.
     case sixMonths
     
-    /// Yearly resolution.
+    /// Yearly resolution with 12 steps of 1 month.
     case year
 }
 
-public enum ChartScopeFormat {
+/// Describes options for formatting a ``TimeSeriesScope``.
+public enum TimeSeriesScopeFormat {
     /// Single-letter short format.
     case short
     
@@ -41,9 +55,9 @@ extension TimeSeriesScope: Identifiable, Hashable {
 
 extension TimeSeriesScope {
     /// The interval to use as a base for all transformations.
-    public static let baseInterval: TimeSeriesScope = .day
+    static let baseInterval: TimeSeriesScope = .day
     
-    public func dateComponents(times value: Int) -> DateComponents {
+    func dateComponents(times value: Int) -> DateComponents {
         var components = DateComponents()
         switch self {
         case .day:
@@ -63,15 +77,20 @@ extension TimeSeriesScope {
         return components
     }
     
-    public var dateComponents: DateComponents {
+    var dateComponents: DateComponents {
         self.dateComponents(times: 1)
     }
 }
 
 // MARK: ChartScopeFormat extensions
 
-public extension ChartScopeFormat {
-    /// Format a time interval.
+public extension TimeSeriesScopeFormat {
+    /// Format a time interval using this format.
+    ///
+    /// - Parameters:
+    ///   - interval: The time interval to format.
+    ///   - languageCode: The language to use. Currently, English (en) and German (de) are supported.
+    /// - Returns: The formatted time interval.
     func callAsFunction(_ interval: TimeSeriesScope, languageCode: String? = nil) -> String {
         switch self {
         case .short:

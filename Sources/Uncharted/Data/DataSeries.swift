@@ -1,6 +1,7 @@
 
 import SwiftUI
 
+/// A named series of related data points that should be charted together.
 public struct DataSeries {
     /// The name of this data series.
     public let name: String
@@ -26,7 +27,15 @@ public struct DataSeries {
     /// The maximum data point of this series.
     internal let max: DataPoint
     
-    /// Default initializer.
+    /// Create a data series.
+    ///
+    /// - Parameters:
+    ///   - name: The name of this data series.
+    ///   - data: The data contained in this series.
+    ///   - markers: The markers associated with this series.
+    ///   - color: The color of this series.
+    ///   - pointStyle: The point style for this series.
+    ///   - lineStyle: The line style for this series.
     public init(name: String,
                 data: [DataPoint],
                 markers: [ChartMarker] = [],
@@ -45,7 +54,13 @@ public struct DataSeries {
         self.max = max
     }
     
-    /// Default initializer.
+    /// Create a data series with default line and point styles.
+    ///
+    /// - Parameters:
+    ///   - name: The name of this data series.
+    ///   - data: The data contained in this series.
+    ///   - markers: The markers associated with this series.
+    ///   - color: The color of this series.
     public init(name: String,
                 data: [DataPoint],
                 markers: [ChartMarker] = [],
@@ -62,7 +77,15 @@ public struct DataSeries {
         self.max = max
     }
     
-    /// Initializer from an array of values.
+    /// Create a data series from an array of y-values.
+    ///
+    /// - Parameters:
+    ///   - name: The name of this data series.
+    ///   - yValues: The y-values contained in this series.
+    ///   - markers: The markers associated with this series.
+    ///   - color: The color of this series.
+    ///   - pointStyle: The point style for this series.
+    ///   - lineStyle: The line style for this series.
     public init(name: String,
                 yValues: [Double],
                 markers: [ChartMarker] = [],
@@ -81,7 +104,13 @@ public struct DataSeries {
         self.max = max
     }
     
-    /// Initializer from an array of values.
+    /// Create a data series from an array of y-values with default line and point styles..
+    ///
+    /// - Parameters:
+    ///   - name: The name of this data series.
+    ///   - yValues: The y-values contained in this series.
+    ///   - markers: The markers associated with this series.
+    ///   - color: The color of this series.
     public init(name: String,
                 yValues: [Double],
                 markers: [ChartMarker] = [],
@@ -122,7 +151,7 @@ public extension DataSeries {
         data.isEmpty
     }
     
-    /// Create a subset of this data series within the given range of x values..
+    /// Create a subset of this data series within the given range of x values.
     func subset<E>(xrange: E) -> DataSeries
         where E: RangeExpression, E.Bound == Double
     {

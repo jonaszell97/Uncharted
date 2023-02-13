@@ -2,6 +2,7 @@
 import SwiftUI
 import Toolbox
 
+/// Defines how the lowest value of a chart axis is determined.
 public enum ChartAxisBaseline {
     /// Always use zero as a baseline.
     case zero
@@ -13,6 +14,7 @@ public enum ChartAxisBaseline {
     case clamp(upperBound: Double)
 }
 
+/// Defines how the highest value of a chart axis is determined.
 public enum ChartAxisTopline {
     /// Use the maximum value of the dataset as the topline.
     case maximumValue
@@ -21,6 +23,7 @@ public enum ChartAxisTopline {
     case clamp(lowerBound: Double)
 }
 
+/// Defines the step size between two data points on a single axis.
 public enum ChartAxisStep {
     /// Use a fixed step size for the axis labels.
     case fixed(Double)
@@ -29,17 +32,19 @@ public enum ChartAxisStep {
     case automatic(preferredSteps: Int = 4)
 }
 
+/// Defines a chart's segmentation and scrolling behaviour.
 public enum ChartScrollingBehaviour {
-    /// No scrolling, all data is displayed.
+    /// No scrolling, all data is displayed at once.
     case noScrolling
     
-    /// Segmented scrolling with distinct pages.
+    /// Segmented scrolling with pages that can be swiped between.
     case segmented(visibleValueRange: Double)
     
     /// Continuous scrolling.
     case continuous(visibleValueRange: Double)
 }
 
+/// Configure the appearance and behaviour of a chart's axes.
 public struct ChartAxisConfig {
     /// The title of this axis.
     public var title: String?
@@ -47,20 +52,20 @@ public struct ChartAxisConfig {
     /// Whether or not this axis is visible.
     public var visible: Bool
     
-    /// The bounds of this axis.
+    /// How the lower bound of this axis is determined.
     public var baseline: ChartAxisBaseline
     
-    /// The bounds of this axis.
+    /// How the upper bound of this axis is determined.
     public var topline: ChartAxisTopline
     
     /// The step of this axis.
     public var step: ChartAxisStep
     
-    /// The vertical translation threshold for scrolling between pages.
-    public var scrollingThresholdTranslation: Double
-    
     /// Whether scrolling is contiguous or paged.
     public var scrollingBehaviour: ChartScrollingBehaviour
+    
+    /// The vertical translation threshold for scrolling between pages.
+    public var scrollingThresholdTranslation: Double
     
     /// The title font of this axis.
     public var titleFont: Font
@@ -144,7 +149,24 @@ public struct ChartAxisConfig {
         }
     }
     
-    /// X-axis initializer.
+    /// Create an X-axis configuration.
+    ///
+    /// - Parameters:
+    ///   - title: The title of this axis.
+    ///   - visible: Whether or not this axis is visible.
+    ///   - baseline: How the lower bound of this axis is determined.
+    ///   - topline: How the upper bound of this axis is determined.
+    ///   - step: The step of this axis.
+    ///   - scrollingBehaviour: Whether scrolling is contiguous or paged.
+    ///   - scrollingThresholdTranslation: The vertical translation threshold for scrolling between pages.
+    ///   - titleFont: The title font of this axis.
+    ///   - titleFontColor: The font color of the title of this axis.
+    ///   - labelFont: The label font of this axis.
+    ///   - labelFontColor: The font color of the labels on this axis.
+    ///   - size: The size of this axis.
+    ///   - gridStyle:  The grid style of this axis.
+    ///   - labelFormatter: The formatter for data labels.
+    /// - Returns: The axis configuration.
     public static func xAxis(title: String? = nil,
                              visible: Bool = true,
                              baseline: ChartAxisBaseline = .minimumValue,
@@ -168,13 +190,27 @@ public struct ChartAxisConfig {
                      labelFormatter: labelFormatter)
     }
     
-    /// Y-axis initializer.
+    /// Create a Y-axis configuration.
+    ///
+    /// - Parameters:
+    ///   - title: The title of this axis.
+    ///   - visible: Whether or not this axis is visible.
+    ///   - baseline: How the lower bound of this axis is determined.
+    ///   - topline: How the upper bound of this axis is determined.
+    ///   - step: The step of this axis.
+    ///   - titleFont: The title font of this axis.
+    ///   - titleFontColor: The font color of the title of this axis.
+    ///   - labelFont: The label font of this axis.
+    ///   - labelFontColor: The font color of the labels on this axis.
+    ///   - size: The size of this axis.
+    ///   - gridStyle:  The grid style of this axis.
+    ///   - labelFormatter: The formatter for data labels.
+    /// - Returns: The axis configuration.
     public static func yAxis(title: String? = nil,
                              visible: Bool = true,
                              baseline: ChartAxisBaseline = .zero,
                              topline: ChartAxisTopline = .maximumValue,
                              step: ChartAxisStep = .automatic(),
-                             scrollingThresholdTranslation: Double = 50,
                              titleFont: Font = .title,
                              titleFontColor: Color = .primary,
                              labelFont: Font = .caption,
@@ -184,7 +220,6 @@ public struct ChartAxisConfig {
                              labelFormatter: DataFormatter = FloatingPointFormatter.standard) -> ChartAxisConfig {
         return .init(title: title, visible: visible, baseline: baseline, topline: topline, step: step,
                      scrollingBehaviour: .noScrolling,
-                     scrollingThresholdTranslation: scrollingThresholdTranslation,
                      titleFont: titleFont, titleFontColor: titleFontColor,
                      labelFont: labelFont, labelFontColor: labelFontColor,
                      size: size, gridStyle: gridStyle,
@@ -192,17 +227,19 @@ public struct ChartAxisConfig {
     }
 }
 
+/// An action that is performed when the user taps on a chart.
 public enum ChartTapAction {
-    /// Highlight the tapped datapoint.
+    /// Highlight only the closest datapoint.
     case highlightSingle
     
-    /// Highlight the tapped datapoint along with other highlighted points.
+    /// Toggle highlighting for the closest datapoint.
     case highlightMultiple
     
-    /// Invoke a custom callback.
+    /// Invoke a custom callback with the closest data point.
     case custom(callback: (DataSeries, DataPoint) -> Void)
 }
 
+/// Common configuration for all chart types.
 public class ChartConfig {
     /// The x-axis configuration.
     public var xAxisConfig: ChartAxisConfig
@@ -219,20 +256,29 @@ public class ChartConfig {
     /// The animation that is used for chart transitions.
     public var animation: Animation?
     
-    /// The 'No data available' text.
+    /// The text that is displayed when no data is available.
     public var noDataAvailableText: String
     
     /// The x-value that is initially visible.
     public var initialXValue: Double?
     
-    /// Default initializer.
+    /// Create a chart configuration.
+    ///
+    /// - Parameters:
+    ///   - xAxisConfig: The x-axis configuration.
+    ///   - yAxisConfig: The y-axis configuration.
+    ///   - tapActions: Actions that are invoked when the user taps a data point.
+    ///   - initialXValue: The x-value that is initially visible.
+    ///   - padding: The padding to apply to the chart.
+    ///   - animation: The animation that is used for chart transitions.
+    ///   - noDataAvailableText: The text that is displayed when no data is available.
     public init(xAxisConfig: ChartAxisConfig = .xAxis(),
                 yAxisConfig: ChartAxisConfig = .yAxis(),
                 tapActions: [ChartTapAction] = [.highlightSingle],
                 initialXValue: Double? = nil,
                 padding: EdgeInsets = .init(),
                 animation: Animation? = .easeInOut,
-                noDataAvailableText: String = "") {
+                noDataAvailableText: String = "-") {
         self.xAxisConfig = xAxisConfig
         self.yAxisConfig = yAxisConfig
         self.tapActions = tapActions
@@ -268,7 +314,7 @@ public class ChartConfig {
 }
 
 public extension ChartAxisStep {
-    /// Use a fixed step size of one.
+    /// A fixed step size of one.
     static let one = Self.fixed(1)
 }
 

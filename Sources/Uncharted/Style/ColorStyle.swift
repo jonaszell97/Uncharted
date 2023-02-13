@@ -2,8 +2,12 @@
 import SwiftUI
 import Toolbox
 
+/// Defines the fill style for shapes.
 public enum ColorStyle {
+    /// Solid, single-color fill.
     case solid(_ color: Color)
+    
+    /// Linear gradient fill.
     case gradient(stops: [Gradient.Stop])
 }
 

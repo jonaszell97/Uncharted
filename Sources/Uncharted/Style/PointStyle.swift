@@ -3,39 +3,65 @@ import SwiftUI
 import Toolbox
 import Panorama
 
+/// Defines the appearance of a point marker.
 public struct PointStyle {
+    /// Defines the point's fill and stroke.
     public enum PointType: String, CaseIterable {
+        /// Fill but do not stroke.
         case fill
+        
+        /// Stroke but do not fill.
         case stroke
+        
+        /// Apply both fill and stroke.
         case fillAndStroke
     }
     
+    /// Defines the point's shape.
     public enum PointShape {
+        /// A circle shape.
         case circle
+        
+        /// A square shape.
         case square
+        
+        /// A rounded square shape.
         case roundedSquare
+        
+        /// A diamond shape.
         case diamond
+        
+        /// A customizable shape.
         case custom(shape: any Shape)
     }
     
-    /// Overall size of the mark
+    /// Overall size of the point.
     public let pointSize: CGFloat
     
-    /// Outter ring colour
+    /// Color of the border. Ignored if ``PointStyle/pointType-swift.property`` is ``PointStyle/PointType-swift.enum/fill``.
     public let borderColor: Color
     
-    /// Center fill colour
+    /// Fill color. Ignored if ``PointStyle/pointType-swift.property`` is ``PointStyle/PointType-swift.enum/stroke``.
     public let fillColor: Color
     
-    /// Outter ring line width
+    /// Width of the stroke. Ignored if ``PointStyle/pointType-swift.property`` is ``PointStyle/PointType-swift.enum/fill``.
     public let lineWidth: CGFloat
     
-    /// Style of the point marks
+    /// The point's fill and stroke style.
     public let pointType: PointType
     
-    /// Shape of the points
+    /// The point's shape.
     public let pointShape: PointShape
     
+    /// Create a point style.
+    ///
+    /// - Parameters:
+    ///   - pointSize: Overall size of the point.
+    ///   - borderColor: Color of the border. Ignored if ``PointStyle/pointType-swift.property`` is ``PointStyle/PointType-swift.enum/fill``.
+    ///   - fillColor: Fill color. Ignored if ``PointStyle/pointType-swift.property`` is ``PointStyle/PointType-swift.enum/stroke``.
+    ///   - lineWidth: Width of the stroke. Ignored if ``PointStyle/pointType-swift.property`` is ``PointStyle/PointType-swift.enum/fill``.
+    ///   - pointType: The point's fill and stroke style.
+    ///   - pointShape: The point's shape.
     public init(pointSize: CGFloat = 5,
                 borderColor: Color = .primary,
                 fillColor: Color = Color(.gray),
@@ -76,7 +102,7 @@ extension PointStyle.PointShape: Shape {
 }
 
 public extension PointStyle {
-    /// Create the view for this point style.
+    /// A View for this point style.
     var view: some View {
         ZStack {
             switch self.pointType {

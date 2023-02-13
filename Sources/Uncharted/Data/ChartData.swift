@@ -57,6 +57,7 @@ internal struct ComputedChartData {
     let adjacentDataPoints: [String: [DataPoint]]
 }
 
+/// Common data provider for all chart types.
 public class ChartData {
     /// The configuration of this chart.
     public let config: ChartConfig
@@ -67,7 +68,11 @@ public class ChartData {
     /// The computed chart parameters.
     internal var computedParameters: ComputedChartData
     
-    /// Default initializer.
+    /// Create the data for a chart.
+    ///
+    /// - Parameters:
+    ///   - config: The configuration of this chart.
+    ///   - series: The data series to use for this chart.
     public init(config: ChartConfig = .init(), series: [DataSeries]) {
         self.config = config
         self.series = series

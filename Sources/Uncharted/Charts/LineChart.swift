@@ -201,19 +201,32 @@ fileprivate struct LineChartPointsView: View {
     }
 }
 
-public struct LineChart: View, Equatable {
+/// A chart that displays its data as continuous lines.
+///
+/// A line chart displays each data series as a continuous line. A line chart can contain arbitrarily many overlapping data series.
+/// Line charts support both negative and positive values and will adjust their axes accordingly.
+///
+/// You can customize the stroke color & style (``LineStyle``), point color & style (``PointStyle``), as well as the fill below the line.
+///
+/// The following gallery shows some examples of what you can do with `LineChart`.
+///
+/// ![An exemplary line chart](LineChartExample1)
+/// ![An exemplary line chart](LineChartExample2)
+/// ![An exemplary line chart](LineChartExample3)
+/// ![An exemplary line chart](LineChartExample4)
+/// ![An exemplary line chart](LineChartExample5)
+/// ![An exemplary line chart](LineChartExample6)
+/// ![An exemplary line chart](LineChartExample7)
+public struct LineChart: View {
     /// The data to use for this chart.
     let fullData: ChartData
     
     /// The current data subset.
     @StateObject var state: ChartState = .init()
     
-    /// Avoid unnecessary view updates.
-    public static func ==(lhs: LineChart, rhs: LineChart) -> Bool {
-        lhs.fullData.dataHash == rhs.fullData.dataHash
-    }
-    
-    /// Default initializer.
+    /// Create a line chart.
+    ///
+    /// - Parameter data: The data that defines this chart.
     public init(data: ChartData) {
         if !(data.config is LineChartConfig) {
             self.fullData = .init(config: LineChartConfig(config: data.config), series: data.series)
@@ -328,5 +341,12 @@ public struct LineChart: View, Equatable {
                 state.runTapActions(for: pt, in: series)
             }
         }
+    }
+}
+
+extension LineChart: Equatable {
+    /// Avoid unnecessary view updates.
+    public static func ==(lhs: LineChart, rhs: LineChart) -> Bool {
+        lhs.fullData.dataHash == rhs.fullData.dataHash
     }
 }

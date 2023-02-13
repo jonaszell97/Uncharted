@@ -1,6 +1,7 @@
 
 import SwiftUI
 
+/// Describes a asingle data point in a chart.
 public struct DataPoint {
     /// The x-axis value of this data point.
     public var x: Double
@@ -8,7 +9,11 @@ public struct DataPoint {
     /// The y-axis value of this data point.
     public var y: Double
     
-    /// Default initializer.
+    /// Create a data point.
+    ///
+    /// - Parameters:
+    ///   - x: The x-axis value of this data point.
+    ///   - y: The y-axis value of this data point.
     public init(x: Double, y: Double) {
         self.x = x
         self.y = y

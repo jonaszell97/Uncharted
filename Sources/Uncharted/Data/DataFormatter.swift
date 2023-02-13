@@ -2,6 +2,7 @@
 import Foundation
 import Toolbox
 
+/// Protocol for types that can format values for display in a chart.
 public protocol DataFormatter {
     /// Format the given value as a readable string.
     func callAsFunction(_ value: Double) -> String
@@ -16,6 +17,7 @@ public protocol DataFormatter {
     func hash(into hasher: inout Hasher)
 }
 
+/// Formatter for integer values.
 public struct IntegerFormatter: DataFormatter {
     /// The rounding rule to apply to the value.
     public let rule: FloatingPointRoundingRule
@@ -23,7 +25,11 @@ public struct IntegerFormatter: DataFormatter {
     /// The threshold above which to apply scientific notation.
     public let scientificNotationThreshold: Double
     
-    /// Default initializer.
+    /// Create an integer formatter with a rounding rule.
+    ///
+    /// - Parameters:
+    ///   - rule: The rounding rule to apply to the value.
+    ///   - scientificNotationThreshold: The threshold above which to apply scientific notation.
     public init(rule: FloatingPointRoundingRule, scientificNotationThreshold: Double = 1_000_000) {
         self.rule = rule
         self.scientificNotationThreshold = scientificNotationThreshold
@@ -49,6 +55,7 @@ public extension IntegerFormatter {
     static let standard = IntegerFormatter(rule: .toNearestOrAwayFromZero)
 }
 
+/// Formatter for floating-point values.
 public struct FloatingPointFormatter: DataFormatter {
     /// The minimum number of decimal places to show.
     public let minDecimalPlaces: Int
@@ -62,8 +69,16 @@ public struct FloatingPointFormatter: DataFormatter {
     /// The threshold above which to apply scientific notation.
     public let scientificNotationThreshold: Double
     
-    /// Default initializer.
-    public init(minDecimalPlaces: Int, maxDecimalPlaces: Int, alwaysDisplaySign: Bool,
+    /// Create a floating point formatter.
+    ///
+    /// - Parameters:
+    ///   - minDecimalPlaces: The minimum number of decimal places to show.
+    ///   - maxDecimalPlaces: The maximum number of decimal places to show.
+    ///   - alwaysDisplaySign: Whether or not the sign should always be visible.
+    ///   - scientificNotationThreshold: The threshold above which to apply scientific notation.
+    public init(minDecimalPlaces: Int,
+                maxDecimalPlaces: Int,
+                alwaysDisplaySign: Bool,
                 scientificNotationThreshold: Double = 1_000_000) {
         self.minDecimalPlaces = minDecimalPlaces
         self.maxDecimalPlaces = maxDecimalPlaces
@@ -91,12 +106,23 @@ public extension FloatingPointFormatter {
     static let standard = FloatingPointFormatter(minDecimalPlaces: 0, maxDecimalPlaces: 2, alwaysDisplaySign: false)
 }
 
+/// A formatter for dates.
 public struct DateFormatter: DataFormatter {
     /// The date style to use for formatting.
     public let dateStyle: Foundation.DateFormatter.Style
     
     /// The time style to use for formatting.
     public let timeStyle: Foundation.DateFormatter.Style
+    
+    /// Create a date formatter.
+    ///
+    /// - Parameters:
+    ///   - dateStyle: The date style to use for formatting.
+    ///   - timeStyle: The time style to use for formatting.
+    init(dateStyle: Foundation.DateFormatter.Style, timeStyle: Foundation.DateFormatter.Style) {
+        self.dateStyle = dateStyle
+        self.timeStyle = timeStyle
+    }
     
     public func callAsFunction(_ value: Double) -> String {
         let formatter = Foundation.DateFormatter()
@@ -125,11 +151,14 @@ public extension DateFormatter {
     }()
 }
 
+/// A formatter that invokes a custom callback.
 public struct CustomDataFormatter: DataFormatter {
     /// The callback to invoke for formatting.
     let formatCallback: (Double) -> String
     
-    /// Default initializer.
+    /// Create a custom formatter.
+    ///
+    /// - Parameter formatCallback: The callback to invoke for formatting.
     public init(formatCallback: @escaping (Double) -> String) {
         self.formatCallback = formatCallback
     }

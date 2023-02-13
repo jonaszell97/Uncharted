@@ -3,7 +3,9 @@ import SwiftUI
 import Toolbox
 import Panorama
 
+/// Defines the appearance of a line in a ``LineChart``.
 public struct LineStyle {
+    /// Defines how a line is drawn between two points.
     public enum LineType: String, CaseIterable {
         /// A straight line from point to point.
         case straight
@@ -15,9 +17,15 @@ public struct LineStyle {
         case stepped
     }
     
+    /// Defines the line's stroke and fill.
     public enum LineFill: String, CaseIterable {
+        /// Fill but do not stroke.
         case fill
+        
+        /// Stroke but do not fill.
         case stroke
+        
+        /// Apply both fill and stroke.
         case fillAndStroke
     }
     
@@ -39,8 +47,21 @@ public struct LineStyle {
     /// Whether or not to fill the shape.
     public let fillColor: ColorStyle
     
-    /// Default initializer.
-    public init(type: LineType, fillType: LineFill, stroke: StrokeStyle, color: ColorStyle, fillColor: ColorStyle, ignoreZero: Bool) {
+    /// Create a line style.
+    ///
+    /// - Parameters:
+    ///   - type: The line type to use.
+    ///   - fillType: The fill type to use.
+    ///   - stroke: The stroke to use.
+    ///   - color: The color of the line.
+    ///   - fillColor: Whether or not to ignore zero values.
+    ///   - ignoreZero: Whether or not to fill the shape.
+    public init(type: LineType,
+                fillType: LineFill,
+                stroke: StrokeStyle,
+                color: ColorStyle,
+                fillColor: ColorStyle,
+                ignoreZero: Bool) {
         self.type = type
         self.fillType = fillType
         self.stroke = stroke

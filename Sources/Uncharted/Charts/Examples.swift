@@ -102,7 +102,7 @@ struct RandomizableChart_Previews {
     }
 }
 
-struct TimeSeriesPreviews: PreviewProvider {
+struct TimeSeriesPreviews {
     struct PreviewView: View {
         static let dateFormatter: Foundation.DateFormatter = {
             let dateFormatter = Foundation.DateFormatter()
@@ -223,6 +223,12 @@ struct TimeSeriesPreviews: PreviewProvider {
     
     static var previews: some View {
         PreviewView()
+    }
+}
+
+struct Previews: PreviewProvider {
+    static var previews: some View {
+        RandomizableChart_Previews.previews
     }
 }
 

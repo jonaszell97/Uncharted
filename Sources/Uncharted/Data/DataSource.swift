@@ -2,20 +2,31 @@
 import Foundation
 import Toolbox
 
+/// Protocol for types that can act as the data source for a ``TimeSeriesView``.
 public protocol TimeSeriesDataSource {
-    /// - returns: The value for a given date.
+    /// The date interval within which this source can provide data.
+    var interval: DateInterval { get }
+    
+    /// Get the value for a single date.
+    ///
+    /// - Parameter date: The date for which the value should be returned.
+    /// - Returns: The value for a given date.
     func value(on date: Date) -> Double?
     
-    /// - returns: The combined value within a given date interval. It is up to the data source to decide how values are combined.
+    /// Get the combined value for a range of dates.
+    ///
+    /// - Parameter interval: The date interval whose contained values should be combined.
+    /// - Returns: The combined value within a given date interval. It is up to the data source to decide how values are combined.
     func combinedValue(in interval: DateInterval) -> Double?
     
-    /// - returns: The maximum and minimum value within a given date interval.
+    /// Get the range of values in an interval.
+    ///
+    /// - Parameter interval: The date interval whose value range should be determined.
+    /// - Returns: The maximum and minimum value within a given date interval.
     func range(in interval: DateInterval) -> ClosedRange<Double>?
-    
-    /// - returns: The date interval within which this source can provide data.
-    var interval: DateInterval { get }
 }
 
+/// A time-series data source that combines values in an interval by summing them.
 public struct SummingTimeSeriesDataSource {
     /// The available data points.
     var data: [(Date, Double)]
@@ -32,12 +43,12 @@ public struct SummingTimeSeriesDataSource {
         return .init(start: data.first!.0, end: data.last!.0)
     }
     
-    /// Initialize from a dataset.
+    /// Create a summing data source from a dataset.
     public init(data: [(Date, Double)]) {
         self.data = data.sorted { $0.0 < $1.0 }
     }
     
-    /// Initialize from a dataset.
+    /// Create a summing data source from a dictionary of dates mapped to values.
     public init(data: [Date: Double]) {
         self.init(data: data.map { ($0.key, $0.value) })
     }
@@ -94,6 +105,7 @@ extension SummingTimeSeriesDataSource: TimeSeriesDataSource {
     }
 }
 
+/// A time-series data source that combines values in an interval by averaging them.
 public struct AveragingTimeSeriesDataSource {
     /// The available data points.
     var data: [(Date, Double)]
@@ -110,12 +122,12 @@ public struct AveragingTimeSeriesDataSource {
         return .init(start: data.first!.0, end: data.last!.0)
     }
     
-    /// Initialize from a dataset.
+    /// Create a summing data source from a dataset.
     public init(data: [(Date, Double)]) {
         self.data = data.sorted { $0.0 < $1.0 }
     }
     
-    /// Initialize from a dataset.
+    /// Create a summing data source from a dictionary of dates mapped to values.
     public init(data: [Date: Double]) {
         self.init(data: data.map { ($0.key, $0.value) })
     }

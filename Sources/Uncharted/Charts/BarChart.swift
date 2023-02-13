@@ -238,7 +238,6 @@ fileprivate struct BarChartViewImpl: View {
                 }
             }
             
-            
             // Negative values
             HStack(spacing: 0) {
                 ForEach(0..<negativeParams.relativeYs.count, id: \.self) { i in
@@ -413,19 +412,33 @@ internal struct BarChart15: View {
     }
 }
 
-public struct BarChart: View, Equatable {
+/// A chart that displays its data as discrete groups of bars.
+///
+/// Bar Charts display their data in discrete groups of vertical bars. There is one bar for every ``DataSeries``
+/// and x-value. Bars from different series can either be stacked (``BarChartConfig/isStacked``) or side-by-side.
+///
+/// Bars can have a customizable color (``DataSeries/color``) and width preference (``BarChartConfig/preferredBarWidth``).
+/// The actual width preference of a bar may be lower than the preference if there is not enough horizontal space.
+///
+/// Bar charts can have positive or negative values. Bars for negative values are oriented downwards from the 0-point of the x-axis instead of upwards.
+///
+/// The following gallery shows some examples of what you can do with `BarChart`.
+///
+/// ![An exemplary bar chart](BarChartExample1)
+/// ![An exemplary bar chart](BarChartExample2)
+/// ![An exemplary bar chart](BarChartExample3)
+/// ![An exemplary bar chart](BarChartExample4)
+/// ![An exemplary bar chart](BarChartExample5)
+public struct BarChart: View {
     /// The data to use for this chart.
     let data: ChartData
     
     /// The chart state.
     @StateObject var state: ChartState = .init()
     
-    /// Avoid unnecessary view updates.
-    public static func ==(lhs: BarChart, rhs: BarChart) -> Bool {
-        lhs.data.dataHash == rhs.data.dataHash
-    }
-    
-    /// Default initializer
+    /// Create a bar chart.
+    ///
+    /// - Parameter data: The data that defines this chart.
     public init(data: ChartData) {
         if !(data.config is BarChartConfig) {
             self.data = .init(config: BarChartConfig(config: data.config), series: data.series)
@@ -439,5 +452,12 @@ public struct BarChart: View, Equatable {
         ChartBase(state: state, data: data) { state, currentData, size in
             BarChart15(state: state, data: currentData, size: size)
         }
+    }
+}
+
+extension BarChart: Equatable {
+    /// Avoid unnecessary view updates.
+    public static func ==(lhs: BarChart, rhs: BarChart) -> Bool {
+        lhs.data.dataHash == rhs.data.dataHash
     }
 }

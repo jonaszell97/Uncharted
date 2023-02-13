@@ -1,6 +1,7 @@
 
 import SwiftUI
 
+/// Provides additional configuration options for ``BarChart``s.
 public class BarChartConfig: ChartConfig {
     /// Whether or not to stack the bars in this chart.
     public var isStacked: Bool
@@ -17,7 +18,20 @@ public class BarChartConfig: ChartConfig {
     /// Whether or not the data for this chart is accumulated by its x-value.
     public override var cumulateYValuesPerSeries: Bool { isStacked }
     
-    /// Default initializer.
+    /// Create a bar chart config.
+    ///
+    /// - Parameters:
+    ///   - isStacked: Whether or not to stack the bars in this chart.
+    ///   - preferredBarWidth: The preferred width of bars.
+    ///   - maxBarWidth: The maximum bar width.
+    ///   - centerBars: Whether the bars should be centered within their space.
+    ///   - xAxisConfig: <#xAxisConfig description#>
+    ///   - yAxisConfig: <#yAxisConfig description#>
+    ///   - tapActions: <#tapActions description#>
+    ///   - initialXValue: <#initialXValue description#>
+    ///   - padding: <#padding description#>
+    ///   - animation: <#animation description#>
+    ///   - noDataAvailableText: <#noDataAvailableText description#>
     public init(isStacked: Bool = true,
                 preferredBarWidth: CGFloat? = nil,
                 maxBarWidth: CGFloat? = nil,
@@ -40,7 +54,14 @@ public class BarChartConfig: ChartConfig {
                    animation: animation, noDataAvailableText: noDataAvailableText)
     }
     
-    /// Initialize from any other config.
+    /// Create a bar chart config by cloning an existing configuration.
+    ///
+    /// - Parameters:
+    ///   - isStacked: Whether or not to stack the bars in this chart.
+    ///   - preferredBarWidth: The preferred width of bars.
+    ///   - maxBarWidth: The maximum bar width.
+    ///   - centerBars: Whether the bars should be centered within their space.
+    ///   - config: The configuration to clone.
     public convenience init(isStacked: Bool = true,
                             preferredBarWidth: CGFloat? = nil,
                             maxBarWidth: CGFloat? = nil,

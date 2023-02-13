@@ -2,12 +2,35 @@
 import SwiftUI
 import Toolbox
 
-public enum ChartDataAggregationMethod {
-    /// Use the arithmetic mean of the values in each interval.
-    case arithmeticMean
+fileprivate func offsetInterval(scope: TimeSeriesScope, interval: DateInterval, segmentIndex: Int) -> DateInterval {
+    let offset: DateComponents
+    let length: DateComponents
     
-    /// Show the values in each interval as a range.
-    case range
+    switch scope {
+    case .day:
+        offset = .init(hour: 24 * segmentIndex)
+        length = .init(hour: 24)
+    case .week:
+        offset = .init(day: 7 * segmentIndex)
+        length = .init(day: 7)
+    case .month:
+        offset = .init(month: 1 * segmentIndex)
+        length = .init(month: 1)
+    case .threeMonths:
+        offset = .init(month: 3 * segmentIndex)
+        length = .init(month: 3)
+    case .sixMonths:
+        offset = .init(month: 6 * segmentIndex)
+        length = .init(month: 6)
+    case .year:
+        offset = .init(year: 1 * segmentIndex)
+        length = .init(year: 1)
+    }
+    
+    let firstDate = Calendar.reference.date(byAdding: offset, to: interval.start)!
+    let lastDate = Calendar.reference.date(byAdding: length, to: firstDate)!
+    
+    return DateInterval(start: firstDate, end: lastDate)
 }
 
 fileprivate func offsetInterval(scope: TimeSeriesScope, interval: DateInterval, segmentIndex: Int) -> DateInterval {
@@ -197,6 +220,7 @@ extension TimeSeriesScope {
     }
 }
 
+/// Default view for the selection of a time series scope using a `Picker`.
 public struct TimeSeriesDefaultIntervalPickerView: View {
     /// The selected interval.
     @Binding var currentScope: TimeSeriesScope
@@ -205,12 +229,17 @@ public struct TimeSeriesDefaultIntervalPickerView: View {
     let supportedScopes: [TimeSeriesScope]
     
     /// Optional formatting function for time intervals.
-    let scopeFormat: ChartScopeFormat
+    let scopeFormat: TimeSeriesScopeFormat
     
-    /// Default initializer.
+    /// Create a time series scope picker.
+    ///
+    /// - Parameters:
+    ///   - currentScope: Binding for the selected scope.
+    ///   - supportedScopes: List of selectable scopes.
+    ///   - scopeFormat: The display format for scope options.
     public init(currentScope: Binding<TimeSeriesScope>,
                 supportedScopes: [TimeSeriesScope] = TimeSeriesScope.allCases,
-                scopeFormat: ChartScopeFormat = .short) {
+                scopeFormat: TimeSeriesScopeFormat = .short) {
         self._currentScope = currentScope
         self.supportedScopes = supportedScopes
         self.scopeFormat = scopeFormat
@@ -226,6 +255,10 @@ public struct TimeSeriesDefaultIntervalPickerView: View {
     }
 }
 
+/// Defines the data for a time series chart.
+///
+/// Instances of this type are created by ``TimeSeriesView``. You can use them to receive
+/// information about the current state of the time series chart.
 public struct TimeSeriesData {
     /// The selected scope.
     public let scope: TimeSeriesScope
@@ -270,6 +303,36 @@ public struct TimeSeriesData {
     }
 }
 
+/// A chart wrapper that organizes data by time and passes it to an underlying chart implementation.
+///
+/// Time series charts pull their data from a ``TimeSeriesDataSource``, which provides values for single dates
+/// or date intervals. `TimeSeriesView` creates an instance of ``TimeSeriesData`` based on the selected scope
+/// as well as the data source and passes it to the chart builder closure to create a chart.
+///
+/// `TimeSeriesView` automatically handles data segmentation based on the selected scope. This means that any
+/// values you configure for the properties ``ChartAxisConfig/step``, ``ChartAxisConfig/scrollingBehaviour``,
+/// ``ChartAxisConfig/visibleValueRange``, and ``ChartAxisConfig/topline`` of the ``ChartAxisConfig``
+/// may be overriden to ensure a consistent appearance.
+///
+/// The following examples show what you can do with `TimeSeriesView`.
+///
+/// ![A time series using a bar chart with yearly scope](TimeSeriesBarYear)
+///
+/// The figure above shows a time series using a ``BarChart`` for visualization with the scope ``TimeSeriesScope/year``
+/// selected. The same chart would look like below if the scope is changed to ``TimeSeriesScope/month`` and ``TimeSeriesScope/week``,
+/// respectively.
+///
+/// ![A time series using a bar chart with monthly scope](TimeSeriesBarMonth)
+/// ![A time series using a bar chart with weekly scope](TimeSeriesBarWeek)
+///
+/// Any chart type can be used to create a time series. The next example shows one using a ``LineChart``.
+///
+/// ![A time series using a line chart with monthly scope](TimeSeriesLineMonth)
+///
+/// Automatic transitions between pages make it easier to visualize the differences in scale between different time intervals.
+///
+/// ![A time series with automatic transition animations](TimeSeriesTransitionMonth)
+/// ![A time series with automatic transition animations](TimeSeriesTransitionWeek)
 public struct TimeSeriesView<ChartContent: View>: View {
     /// The chart data.
     let source: TimeSeriesDataSource
@@ -286,7 +349,12 @@ public struct TimeSeriesView<ChartContent: View>: View {
     /// The chart state.
     @State var chartState: ChartStateProxy? = nil
     
-    /// Default initializer.
+    /// Create a time series chart.
+    ///
+    /// - Parameters:
+    ///   - source: The data source.
+    ///   - scope: Binding for the
+    ///   - buildChartView: Closure to build the chart from the current time series data.
     public init(source: TimeSeriesDataSource,
                 scope: Binding<TimeSeriesScope>,
                 @ViewBuilder buildChartView: @escaping (TimeSeriesData) -> ChartContent) {

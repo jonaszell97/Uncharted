@@ -1,6 +1,7 @@
 
 import SwiftUI
 
+/// Defines the appearance of a chart's background grid for a single axis.
 public struct GridStyle {
     /// The color of the grid lines.
     public let lineColor: Color
@@ -14,7 +15,13 @@ public struct GridStyle {
     /// The dash phase of the grid lines.
     public let dashPhase: CGFloat
     
-    /// Default initializer.
+    /// Create a grid style.
+    ///
+    /// - Parameters:
+    ///   - lineColor: The color of the grid lines.
+    ///   - lineWidth: The width of the grid lines.
+    ///   - dash: The dash width of the grid lines.
+    ///   - dashPhase: The dash phase of the grid lines.
     public init(lineColor: Color,
                 lineWidth: CGFloat,
                 dash: [CGFloat],

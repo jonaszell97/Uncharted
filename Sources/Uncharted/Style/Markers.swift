@@ -3,6 +3,7 @@ import SwiftUI
 import Toolbox
 import Panorama
 
+/// Markers can be used to add information to your chart that is not represented in the ``ChartData`` itself.
 public enum ChartMarker {
     /// A point marker.
     case point(style: PointStyle, position: DataPoint)
@@ -23,7 +24,7 @@ public enum ChartMarker {
 
 extension ChartMarker {
     /// Whether this marker is contained within the given x-axis range.
-    public func isLocatedInRange<E>(xrange: E) -> Bool
+    func isLocatedInRange<E>(xrange: E) -> Bool
         where E: RangeExpression, E.Bound == Double
     {
         switch self {
@@ -39,7 +40,7 @@ extension ChartMarker {
     }
     
     /// Whether this marker is contained within the given y-axis range.
-    public func isLocatedInRange<E>(yrange: E) -> Bool
+    func isLocatedInRange<E>(yrange: E) -> Bool
         where E: RangeExpression, E.Bound == Double
     {
         switch self {
@@ -65,7 +66,7 @@ extension ChartMarker {
     }
     
     /// Create the view for this marker.
-    public func view(dataRect: CGRect, viewRect: CGRect) -> some View {
+    func view(dataRect: CGRect, viewRect: CGRect) -> some View {
         ZStack {
             switch self {
             case .point(let style, let position):

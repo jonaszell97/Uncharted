@@ -15,7 +15,7 @@ fileprivate struct ChartYAxisGridline: Identifiable {
     var id: String { "yaxisgridline_\(label)" }
 }
 
-public struct ChartBase<Content: View>: View {
+internal struct ChartBase<Content: View>: View {
     /// The current data subset.
     @ObservedObject var state: ChartState
     

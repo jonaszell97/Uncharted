@@ -2,6 +2,7 @@
 import SwiftUI
 import Toolbox
 
+/// A wrapper that generates random chart data and passes it to a custom closure to create a chart.
 public struct RandomizableChart<ChartView: View>: View {
     /// Callback that is invoked to create a chart view from the current chart data.
     let createChart: (ChartData) -> ChartView
@@ -15,7 +16,11 @@ public struct RandomizableChart<ChartView: View>: View {
     /// The shared RNG for this session..
     @State var rng: ARC4RandomNumberGenerator
     
-    /// Memberwise initializer.
+    /// Create a randomizable chart.
+    ///
+    /// - Parameters:
+    ///   - seed: The RNG seed to use.
+    ///   - createChart: Closure to create a chart view from randomized data.
     public init(seed: UInt64? = nil, createChart: @escaping (ChartData) -> ChartView) {
         self.createChart = createChart
         
