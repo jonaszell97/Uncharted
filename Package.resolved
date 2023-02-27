@@ -2,20 +2,20 @@
   "pins" : [
     {
       "identity" : "panorama",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jonaszell97/Panorama.git",
+      "kind" : "localSourceControl",
+      "location" : "/Users/jonaszell/Developer/Panorama",
       "state" : {
-        "revision" : "3bde5e74d716d5453a1f481b03b0bba0156b98e1",
-        "version" : "0.2.1"
+        "branch" : "dev",
+        "revision" : "4eba6394b7ce6ccda4a07a932b77b4ce29299512"
       }
     },
     {
       "identity" : "toolbox",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jonaszell97/Toolbox.git",
+      "kind" : "localSourceControl",
+      "location" : "/Users/jonaszell/Developer/Toolbox",
       "state" : {
-        "revision" : "6d476ca84b19bf7d80d7b816b73ad0c66e5c8f0c",
-        "version" : "0.4.0"
+        "branch" : "dev",
+        "revision" : "043a82bc5588f76b0de3f606a822e2abf8933b4a"
       }
     }
   ],
